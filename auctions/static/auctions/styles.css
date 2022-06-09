@@ -1,0 +1,27 @@
+body {
+    padding: 20px;
+    /* font-family: 'Times New Roman', serif; */
+}
+
+a:link {
+    text-decoration: none;
+    color: black;
+  }
+  
+  a:visited {
+    text-decoration: none;
+    color: black;
+  }
+  
+  a:hover {
+    text-decoration: none;
+    color: black;
+    box-shadow: inset 1000px 0 0 0 white;
+  }
+  
+  a:active {
+    text-decoration: none;
+    color: black;
+  }
+
+

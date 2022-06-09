@@ -1,0 +1,27 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+
+<nav class="navbar navbar-light bg-light justify-content-center">
+  <a class="navbar-brand ">Categories</a>
+</nav>
+
+
+<div id="container">
+  {% for category in categories %}
+    <div><a href="{% url 'category' category.id %}">{{ category.type }}</a></div>
+  {% endfor %}
+
+</div>
+  
+
+
+
+
+{% endblock %}
+
+
+
+
+

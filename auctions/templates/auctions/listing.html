@@ -1,0 +1,116 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+
+
+    {% for message in messages %}
+    <div class="container-fluid p-0">
+    <div class="alert {{ message.tags }} alert-dismissible" role="alert" >
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="True">&times;</span>
+        </button>
+        {{ message }}
+    </div>
+    </div>
+    {% endfor %}
+
+
+    <ul class="nav justify-content-center">
+        <li class="nav-item">
+          <a class="nav-link" href="#">Listing Details</a>
+        </li>
+      </ul>
+
+      <div class="container">
+        <div id="grid">
+            <div class="grid_item">
+                <a href="default.asp"><img src="{{ listing.image }}" alt="Photo of {{ listing.title }}" style="width:300px;height:300px;"></a>
+            </div>
+            <div class="grid_item">
+                <div style="width:800px; height:50px; margin:0"  class="font-weight-bold">
+                    {{ listing.title }}
+                </div>
+
+                {% if in_watchlist %}
+                    <form action="{% url 'watchlist_remove' listing.id %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <input type="hidden" name="user" value="{{user.id}}">
+                        </div>
+                        <input class="btn btn-primary" type="submit" value="Remove from Watchlist">
+                    </form>
+                {% else %}
+                    <form action="{% url 'watchlist_add' listing.id %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <input type="hidden" name="user" value="{{user.id}}">
+                        </div>
+                        <input class="btn btn-primary" type="submit" value="Add To Watchlist">
+                    </form>
+                {% endif %}
+
+  
+
+                <div style="width:800px; height:50px; margin:0 ">
+                    {{ listing.description }}
+                </div>
+                <div style="width:800px; height:150px; margin-top:20px;">
+                    <p class="font-weight-bold">Current Price: ${{ listing.bid }} </p> 
+                </div>
+                <hr>
+                <div style="width:800px; height:50px;">
+                    <form action="{% url 'place_bid' listing.id %}" method="post">
+                        {% csrf_token %}
+                        <input type="number" name="bid">
+                        <input type="submit" value="Place Bid" class="btn btn-secondary">
+                    </form>
+                </div> 
+
+            </div>
+        </div>
+      </div>
+      
+
+      {% if user.is_authenticated %}
+        <div class="container">
+            <h5>Comments</h5>
+            <div id="grid">
+                    <form action="{% url 'comment' listing.id %}" method="post">
+                        {% csrf_token %}
+                        {{ comment_form }}
+                        <br>
+                    <input type="submit" value="Add Comment" class="btn btn-primary">
+                    </form>
+            </div>
+        </div>
+
+  
+        <div class="container">
+            {% for comment in listing.comments.all %}
+                <div class="row border bg-light py-2 mx-0 mx-md-3 mb-3">
+                    <div class="col-6">
+                        <strong>{{ comment.user }}</strong>
+                    </div>
+                    <div class="col-6 text-right text-muted">
+                        <small><em>{{ comment.time }}</em></small>
+                    </div>
+                    <div class="col-xl-12 pt-1">
+                        {{ comment.comment }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+
+
+      {% endif %}
+
+
+
+
+
+
+
+
+{% endblock %}

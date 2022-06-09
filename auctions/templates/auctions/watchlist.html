@@ -1,0 +1,29 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    <!-- {% for listing in watchlist %}
+        {{ listing.title }}
+    {% endfor %} -->
+
+    <nav class="navbar navbar-light bg-light justify-content-center">
+        <a class="navbar-brand ">Watchlist</a>
+      </nav>
+
+    <div class="container">
+        {% for listing in watchlist %}
+            <div class="row border bg-light py-2 mx-0 mx-md-3 mb-3">
+                <div class="col-6">
+                    <strong>{{ listing.title }}</strong>
+                </div>
+                <div class="col-6 text-right text-muted">
+                    <small>${{ listing.bid }}</small>
+                </div>
+                <div class="col-xl-12 pt-1">
+                    {{ listing.description }}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}

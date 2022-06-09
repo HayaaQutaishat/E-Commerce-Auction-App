@@ -1,0 +1,130 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>{% block title %}Auctions{% endblock %}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link href="{% static 'auctions/styles.css' %}" rel="stylesheet">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+        <style>
+
+            a:link {
+    text-decoration: none;
+    color: black;
+  }
+  
+  a:visited {
+    text-decoration: none;
+    color: black;
+  }
+  
+  a:hover {
+    text-decoration: none;
+    color: black;
+    box-shadow: inset 1000px 0 0 0 white;
+  }
+  
+  a:active {
+    text-decoration: none;
+    color: black;
+  }
+
+  .grid_item {
+      background-color: white;
+      padding: 10px;
+      margin: 2px;
+      text-align: center;
+      border-style: groove;
+      border-width: 5px;
+  }
+
+
+
+  #grid {
+    background-color: white;
+    display: grid;
+    padding: 20px;
+    grid-column-gap: 0px;
+    grid-row-gap: 10px;
+    grid-template-columns: auto auto;
+    
+  }
+
+  body {
+  font-family: 'Times New Roman', serif;
+  font-size: large;
+  
+}
+#background {
+    background-color: rgb(169, 163, 163);
+}
+
+#container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#container > div{
+    background-color: rgb(174, 180, 174);
+    margin: 40px;
+    padding: 20px;
+    font-size: 20px;
+    width: 200px;
+}
+
+        </style>
+
+    </head>
+
+
+    <body>
+
+        <nav class="navbar navbar-dark bg-secondary">
+            <a class="navbar-brand">Auctions</a>
+            <ul class="nav ">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'index' %}">Active Listings</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'categories' %}">Categories</a>
+                </li>
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'new_listing' %}">Create New Listing</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'watchlist' %}">Watchlist</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Log In</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'register' %}">Register</a>
+                    </li>
+                {% endif %}
+            </ul>
+            {% if user.is_authenticated %}
+                <span class="navbar-text">
+                    Signed in as {{ user.username }}
+                </span>
+            {% else %}
+                <span class="navbar-text">
+                    Not signed in.
+                </span>
+            {% endif %}
+            
+          </nav>
+
+        <hr>
+        {% block body %}
+        {% endblock %}
+    </body>
+</html>
