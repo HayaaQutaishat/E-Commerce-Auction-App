@@ -72,7 +72,7 @@
 
       {% if user.is_authenticated %}
         <div class="container">
-            <h5>Comments</h5>
+            <h5>Comments <span class="badge badge-secondary">{{ total_comments }}</span></h5>
             <div id="grid">
                     <form action="{% url 'comment' listing.id %}" method="post">
                         {% csrf_token %}

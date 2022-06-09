@@ -121,16 +121,19 @@ def new_listing(request):
 @login_required()
 def listing(request, listing_id):
     listing = Listing.objects.get(pk=listing_id)
+    comments = listing.comments.all()
+    total_comments = comments.count()
     user = request.user
     if listing in user.watchlist.all():
          in_watchlist = True
     else:
-         in_watchlist = False
+        in_watchlist = False
 
     return render(request, "auctions/listing.html",{
         "listing": listing,
         "comment_form": NewCommentForm(),
-        "in_watchlist": in_watchlist
+        "in_watchlist": in_watchlist,
+        "total_comments":  total_comments
     })
 
 
@@ -138,6 +141,7 @@ def listing(request, listing_id):
 def place_bid(request, listing_id):
     if request.method=="POST":
         listing = Listing.objects.get(pk=listing_id)
+
         current_bid = listing.bid
         new_bid = request.POST.get('bid', False)
 
@@ -147,16 +151,26 @@ def place_bid(request, listing_id):
         if new_bid_int > current_bid_int:
             listing.bid = new_bid
             listing.save()
+
             messages.success(request, 'Bid successfully added.')
             return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
         else:
             messages.error(request, 'Your bid needs to be higher than the current bid.')
 
 
-
     return render(request, "auctions/listing.html",{
         "listing": listing,
     })
+
+
+# def number_of_bids(request, listing_id):
+#     listing = Listing.objects.get(pk=listing_id)
+#     all_bids = listing.lists.all()
+#     bid_counts = all_bids.count()
+#     print(all_bids)
+#     print("Hi")
+
+
 
 
 def categories(request):
@@ -218,7 +232,8 @@ def comment(request, listing_id):
             listing = Listing.objects.get(pk=listing_id)
             comment = Comment.objects.create(user=request.user,listing=listing,comment=comment)
             comment.save()
-            comments = listing.comments.all
+
+
         
             messages.success(request, 'Comment successfully added.')
             return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
