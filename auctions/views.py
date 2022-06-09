@@ -35,36 +35,6 @@ class NewCommentForm(forms.Form):
       "class": "form-control col-md-8 col-lg-12",
       "rows": 5,
       }))
-    # user = forms.CharField(widget = forms.HiddenInput(), required = False)
-    # listingID = forms.CharField(widget = forms.HiddenInput(), required = False)
-
-
-
-@login_required()
-def comment(request, listing_id):
-    if request.method == 'POST':
-        form = NewCommentForm(request.POST)
-        if form.is_valid():
-            comment = form.cleaned_data["comment"]
-            listing = Listing.objects.get(pk=listing_id)
-            comment = Comment.objects.create(user=request.user,listing=listing,comment=comment)
-            comment.save()
-            comments = listing.comments.all
-        
-            messages.success(request, 'Comment successfully added.')
-            return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
-
-        return render(request, "auctions/listing.html", {
-            "comment_form": NewCommentForm(),
-             "comments": Comment.objects.all()
-            })        
-    else:
-        return render(request, "auctions/listing.html",{
-            "comment_form": NewCommentForm(),
-            "comments": Comment.objects.all()
-        })
-            
-
 
 def index(request):
     return render(request, "auctions/index.html",{
@@ -223,11 +193,42 @@ def watchlist_add(request, listing_id):
         user.watchlist.add(listing)
         messages.success(request, 'Listing successfully added to your Watchlist.')
         return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
-        # return HttpResponseRedirect(reverse("watchlist"))
+    else:
+        return render(request, "auctions/watchlist.html")
+
 
 @login_required()
 def watchlist_remove(request, listing_id):
-    pass
+    if request.method == 'POST':
+        listing = Listing.objects.get(pk=int(listing_id))
+        user = User.objects.get(pk=int(request.POST["user"]))
+        user.watchlist.remove(listing)
+        messages.success(request, 'Listing successfully removed from your Watchlist.')
+        return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
+    else:
+        return render(request, "auctions/watchlist.html")
+ 
+    
+@login_required()
+def comment(request, listing_id):
+    if request.method == 'POST':
+        form = NewCommentForm(request.POST)
+        if form.is_valid():
+            comment = form.cleaned_data["comment"]
+            listing = Listing.objects.get(pk=listing_id)
+            comment = Comment.objects.create(user=request.user,listing=listing,comment=comment)
+            comment.save()
+            comments = listing.comments.all
+        
+            messages.success(request, 'Comment successfully added.')
+            return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
 
+        return render(request, "auctions/listing.html", {
+            "comment_form": NewCommentForm(),
+            })        
+    else:
+        return render(request, "auctions/listing.html",{
+            "comment_form": NewCommentForm(),
+        })
 
    

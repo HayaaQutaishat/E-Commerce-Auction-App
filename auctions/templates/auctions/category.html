@@ -8,17 +8,10 @@
     </li>
   </ul>
 
-<!-- <ul>
-    {% for listing in listings %}
-        <li>
-            {{ listing }}
-        </li>
-    {% empty %}
-        <li>No Listings in this category</li>
-    {% endfor %}
-</ul> -->
+
 
 {% for listing in listings %}
+
 <div class="container">
     <div id="grid">
         <div class="grid_item">
@@ -28,6 +21,27 @@
             <div style="width:800px; height:50px; margin:0"  class="font-weight-bold">
                 {{ listing.title }}
             </div>
+
+            {% if in_watchlist %}
+                <form action="{% url 'watchlist_remove' listing.id %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <input type="hidden" name="user" value="{{user.id}}">
+                    </div>
+                    <input class="btn btn-primary" type="submit" value="Remove from Watchlist">
+                </form>
+            {% else %}
+                <form action="{% url 'watchlist_add' listing.id %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <input type="hidden" name="user" value="{{user.id}}">
+                    </div>
+                    <input class="btn btn-primary" type="submit" value="Add To Watchlist">
+                </form>
+            {% endif %}
+
+
+
             <div style="width:800px; height:50px; margin:0 ">
                 {{ listing.description }}
             </div>
@@ -42,11 +56,7 @@
                     <input type="submit" value="Place Bid" class="btn btn-secondary">
                 </form>
             </div> 
-            <div style="width:800px; height:50px; ">
-                <form>
-                    <button type="submit" class="btn btn-outline-secondary">Add to Watchlist</button>    
-                </form>
-          </div> 
+
         </div>
     </div>
   </div>

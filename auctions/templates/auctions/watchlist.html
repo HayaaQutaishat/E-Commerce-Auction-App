@@ -2,9 +2,7 @@
 
 {% block body %}
 
-    <!-- {% for listing in watchlist %}
-        {{ listing.title }}
-    {% endfor %} -->
+
 
     <nav class="navbar navbar-light bg-light justify-content-center">
         <a class="navbar-brand ">Watchlist</a>
@@ -13,16 +11,25 @@
     <div class="container">
         {% for listing in watchlist %}
             <div class="row border bg-light py-2 mx-0 mx-md-3 mb-3">
+
                 <div class="col-6">
-                    <strong>{{ listing.title }}</strong>
+                    <a href="{% url 'listing' listing.id %}"><strong>{{ listing.title }}</strong></a>
                 </div>
                 <div class="col-6 text-right text-muted">
-                    <small>${{ listing.bid }}</small>
+                    <strong>${{ listing.bid }}</strong>
                 </div>
                 <div class="col-xl-12 pt-1">
-                    {{ listing.description }}
+                    <a href="{% url 'listing' listing.id %}">{{ listing.description }}</a> 
                 </div>
+                <form action="{% url 'watchlist_remove' listing.id %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <input type="hidden" name="user" value="{{user.id}}">
+                    </div>
+                    <input class="btn btn-dark" type="submit" value="Remove from Watchlist">
+                </form>
             </div>
+            
         {% endfor %}
     </div>
 

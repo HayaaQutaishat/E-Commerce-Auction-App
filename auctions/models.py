@@ -18,7 +18,7 @@ class Listing(models.Model):
     description = models.CharField(max_length=1000)
     bid = models.DecimalField(max_digits=10, decimal_places=2)
     image = models.URLField(max_length=1000, blank=True, null=True)
-    category = models.ForeignKey(Categories, on_delete=models.CASCADE)
+    category = models.ForeignKey(Categories, on_delete=models.CASCADE, blank=True, null=True)
     watchlist = models.ManyToManyField(User, blank=True, related_name="watchlist")
 
 
@@ -52,7 +52,7 @@ class Comment(models.Model):
         return comment
 
     def __str__(self):
-        return f"{self.text}"
+        return f"{self.comment}"
 
 
 
