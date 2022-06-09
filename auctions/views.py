@@ -7,6 +7,7 @@ from auctions.models import Listing, User, Bid, Comment, Categories
 from django.contrib.auth.decorators import login_required
 from django import forms
 from django.contrib import messages
+from django.db.utils import OperationalError
 
 
 class NewListingForm(forms.Form):
@@ -31,7 +32,7 @@ class NewListingForm(forms.Form):
 
 class NewCommentForm(forms.Form):
     comment = forms.CharField(label='',widget=forms.Textarea(attrs={
-      "placeholder": "Add Comment",
+      "placeholder": "Add Comment...",
       "class": "form-control col-md-8 col-lg-12",
       "rows": 5,
       }))
@@ -104,9 +105,11 @@ def new_listing(request):
             description = form.cleaned_data["description"]
             image = form.cleaned_data["image"]
             bid = form.cleaned_data["bid"]
+            bid_object = Bid.create(request.user,bid)
+            bid_object.save() 
             category = form.cleaned_data["category"]
             category_obj = Categories.objects.get(type=category)
-            listing = Listing.create(title=title, description=description, bid=bid, image=image, category=category_obj)
+            listing = Listing.create(title=title, description=description, bid=bid_object, image=image, category=category_obj)
             listing.save()
             return HttpResponseRedirect(reverse("index"))
             
@@ -123,6 +126,8 @@ def listing(request, listing_id):
     listing = Listing.objects.get(pk=listing_id)
     comments = listing.comments.all()
     total_comments = comments.count()
+    # bids = listing.bids.all()
+    # total_bids = bids.count()
     user = request.user
     if listing in user.watchlist.all():
          in_watchlist = True
@@ -133,7 +138,8 @@ def listing(request, listing_id):
         "listing": listing,
         "comment_form": NewCommentForm(),
         "in_watchlist": in_watchlist,
-        "total_comments":  total_comments
+        "total_comments":  total_comments,
+        # "total_bids": total_bids
     })
 
 
@@ -141,20 +147,22 @@ def listing(request, listing_id):
 def place_bid(request, listing_id):
     if request.method=="POST":
         listing = Listing.objects.get(pk=listing_id)
-
         current_bid = listing.bid
         new_bid = request.POST.get('bid', False)
 
         current_bid_int = int(listing.bid)
         new_bid_int = int(request.POST.get('bid', False))
-        
+
+
         if new_bid_int > current_bid_int:
+ 
             listing.bid = new_bid
             listing.save()
 
             messages.success(request, 'Bid successfully added.')
             return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
         else:
+  
             messages.error(request, 'Your bid needs to be higher than the current bid.')
 
 
@@ -163,12 +171,6 @@ def place_bid(request, listing_id):
     })
 
 
-# def number_of_bids(request, listing_id):
-#     listing = Listing.objects.get(pk=listing_id)
-#     all_bids = listing.lists.all()
-#     bid_counts = all_bids.count()
-#     print(all_bids)
-#     print("Hi")
 
 
 
@@ -232,8 +234,6 @@ def comment(request, listing_id):
             listing = Listing.objects.get(pk=listing_id)
             comment = Comment.objects.create(user=request.user,listing=listing,comment=comment)
             comment.save()
-
-
         
             messages.success(request, 'Comment successfully added.')
             return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
