@@ -56,7 +56,12 @@
                 <div style="width:800px; height:80px; margin-top:20px;">
                     <p class="font-weight-bold">Current Price: ${{ listing.bid }} </p> 
                 </div>
-                <small class="mt-0"><span class="badge badge-pill badge-light">{{ total_bids }} bid(s) so far.</span></small>
+                <small class="mt-0"><span class="badge badge-pill badge-light">{{ total_bids }} bids so far.</span></small>
+                <!-- Condition << if user is current winner -->
+                {% if current_winner %}
+                    <small class="mt-0"><span class="badge badge-pill badge-success">Your bid is the highest bid :)</span></small>
+                {% endif %}
+
                 <hr>
                 <div style="width:800px; height:50px;">
                     <form action="{% url 'place_bid' listing.id %}" method="post">
