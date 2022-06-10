@@ -12,23 +12,10 @@ class Categories(models.Model):
     def __str__(self):
         return f"{self.type}"
 
-class Bid(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="users")
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-
-    def __str__(self):
-        return f"{self.amount}"
-
-    @classmethod
-    def create(cls, user,amount):
-        bid = cls(user=user,amount=amount)
-        return bid
-
 class Listing(models.Model):
-
     title = models.CharField(max_length=100)
     description = models.CharField(max_length=1000)
-    bid = models.ForeignKey(Bid, on_delete=models.CASCADE, related_name="bids")
+    bid = models.DecimalField(max_digits=10, decimal_places=2)
     image = models.URLField(max_length=1000, blank=True, null=True)
     category = models.ForeignKey(Categories, on_delete=models.CASCADE, blank=True, null=True)
     watchlist = models.ManyToManyField(User, blank=True, related_name="watchlist")
@@ -43,6 +30,18 @@ class Listing(models.Model):
         listing = cls(title=title, description=description, bid=bid, image=image, category=category)
         return listing
 
+class Bid(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="users")
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="listings")
+
+    def __str__(self):
+        return f"{self.amount}"
+
+    @classmethod
+    def create(cls, user,amount,listing):
+        bid = cls(user=user,amount=amount,listing=listing)
+        return bid
 
 class Comment(models.Model):
     comment = models.CharField(max_length=5000)

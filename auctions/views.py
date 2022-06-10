@@ -39,7 +39,7 @@ class NewCommentForm(forms.Form):
 
 def index(request):
     return render(request, "auctions/index.html",{
-        "listings": Listing.objects.all()
+        "listings": Listing.objects.all(),
     })
 
 
@@ -105,12 +105,12 @@ def new_listing(request):
             description = form.cleaned_data["description"]
             image = form.cleaned_data["image"]
             bid = form.cleaned_data["bid"]
-            bid_object = Bid.create(request.user,bid)
-            bid_object.save() 
             category = form.cleaned_data["category"]
             category_obj = Categories.objects.get(type=category)
-            listing = Listing.create(title=title, description=description, bid=bid_object, image=image, category=category_obj)
+            listing = Listing.create(title=title, description=description, bid=bid, image=image, category=category_obj)
             listing.save()
+            bid_object = Bid.create(request.user,bid,listing)
+            bid_object.save() 
             return HttpResponseRedirect(reverse("index"))
             
 
@@ -121,13 +121,22 @@ def new_listing(request):
         })
 
 
+
 @login_required()
 def listing(request, listing_id):
     listing = Listing.objects.get(pk=listing_id)
     comments = listing.comments.all()
     total_comments = comments.count()
-    # bids = listing.bids.all()
+
+    # bids = listing.bid
     # total_bids = bids.count()
+
+    bids = listing.listings.all()
+    total_bids = bids.count()
+
+
+
+
     user = request.user
     if listing in user.watchlist.all():
          in_watchlist = True
@@ -139,7 +148,7 @@ def listing(request, listing_id):
         "comment_form": NewCommentForm(),
         "in_watchlist": in_watchlist,
         "total_comments":  total_comments,
-        # "total_bids": total_bids
+        "total_bids": total_bids
     })
 
 
@@ -147,32 +156,24 @@ def listing(request, listing_id):
 def place_bid(request, listing_id):
     if request.method=="POST":
         listing = Listing.objects.get(pk=listing_id)
-        current_bid = listing.bid
-        new_bid = request.POST.get('bid', False)
+        current_bid = int(listing.bid)
+        new_bid = int(request.POST["bid"])
 
-        current_bid_int = int(listing.bid)
-        new_bid_int = int(request.POST.get('bid', False))
-
-
-        if new_bid_int > current_bid_int:
- 
-            listing.bid = new_bid
-            listing.save()
+        if new_bid > current_bid:
+            #create the new_bid and save it:
+            new_bid_obj = Bid.create(request.user,new_bid,listing)     
+            new_bid_obj.save() 
+            #update listing class << bid field:
+            # MyModel.objects.filter(pk=some_value).update(field1='some value')
+            Listing.objects.filter(pk=listing_id).update(bid=new_bid)
 
             messages.success(request, 'Bid successfully added.')
             return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
         else:
-  
             messages.error(request, 'Your bid needs to be higher than the current bid.')
-
-
     return render(request, "auctions/listing.html",{
         "listing": listing,
     })
-
-
-
-
 
 
 def categories(request):
@@ -239,7 +240,7 @@ def comment(request, listing_id):
             return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
 
         return render(request, "auctions/listing.html", {
-            "comment_form": NewCommentForm(),
+            "comment_form": form,
             })        
     else:
         return render(request, "auctions/listing.html",{

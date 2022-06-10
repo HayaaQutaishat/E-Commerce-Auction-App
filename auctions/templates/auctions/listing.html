@@ -30,25 +30,25 @@
                     {{ listing.title }}
                 </div>
 
+      
+                <!-- watchlist is here -->
                 {% if in_watchlist %}
-                    <form action="{% url 'watchlist_remove' listing.id %}" method="post">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <input type="hidden" name="user" value="{{user.id}}">
-                        </div>
-                        <input class="btn btn-primary" type="submit" value="Remove from Watchlist">
-                    </form>
-                {% else %}
-                    <form action="{% url 'watchlist_add' listing.id %}" method="post">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <input type="hidden" name="user" value="{{user.id}}">
-                        </div>
-                        <input class="btn btn-primary" type="submit" value="Add To Watchlist">
-                    </form>
-                {% endif %}
-
-  
+                <form action="{% url 'watchlist_remove' listing.id %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <input type="hidden" name="user" value="{{user.id}}">
+                    </div>
+                    <input class="btn btn-primary" type="submit" value="Remove from Watchlist">
+                </form>
+            {% else %}
+                <form action="{% url 'watchlist_add' listing.id %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <input type="hidden" name="user" value="{{user.id}}">
+                    </div>
+                    <input class="btn btn-primary" type="submit" value="Add To Watchlist">
+                </form>
+            {% endif %}
 
                 <div style="width:800px; height:50px; margin:0 ">
                     {{ listing.description }}
@@ -70,6 +70,7 @@
         </div>
       </div>
       
+<!-- Comment section -->
 
       {% if user.is_authenticated %}
         <div class="container">
@@ -82,9 +83,7 @@
                     <input type="submit" value="Add Comment" class="btn btn-primary">
                     </form>
             </div>
-        </div>
-
-  
+        </div> 
         <div class="container">
             {% for comment in listing.comments.all %}
                 <div class="row border bg-light py-2 mx-0 mx-md-3 mb-3">
@@ -97,19 +96,10 @@
                     <div class="col-xl-12 pt-1">
                         {{ comment.comment }}
                     </div>
-                </div>
+                </div> 
             {% endfor %}
         </div>
 
-
-
       {% endif %}
-
-
-
-
-
-
-
 
 {% endblock %}
