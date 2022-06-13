@@ -14,6 +14,13 @@
     {% endfor %}
 
 
+<!-- {% if listing.active == False %}
+    <div class="alert alert-info text-center" role="alert">
+        This auction is closed.
+    </div>
+{% endif %} -->
+
+
     <ul class="nav justify-content-center">
         <li class="nav-item">
           <a class="nav-link" href="#">Listing Details</a>
@@ -31,55 +38,85 @@
                 </div>
 
       
-                <!-- watchlist is here -->
-                {% if in_watchlist %}
-                <form action="{% url 'watchlist_remove' listing.id %}" method="post">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <input type="hidden" name="user" value="{{user.id}}">
-                    </div>
-                    <input class="btn btn-primary" type="submit" value="Remove from Watchlist">
-                </form>
-            {% else %}
-                <form action="{% url 'watchlist_add' listing.id %}" method="post">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <input type="hidden" name="user" value="{{user.id}}">
-                    </div>
-                    <input class="btn btn-primary" type="submit" value="Add To Watchlist">
-                </form>
+                <!-- watchlist -->
+                {% if user.is_authenticated %}
+                    {% if in_watchlist %}
+                    <form action="{% url 'watchlist_remove' listing.id %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <input type="hidden" name="user" value="{{user.id}}">
+                        </div>
+                        <input class="btn btn-primary" type="submit" value="Remove from Watchlist">
+                    </form>
+                {% else %}
+                    <form action="{% url 'watchlist_add' listing.id %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <input type="hidden" name="user" value="{{user.id}}">
+                        </div>
+                        <input class="btn btn-primary" type="submit" value="Add To Watchlist">
+                    </form>
+                {% endif %}
             {% endif %}
 
                 <div style="width:800px; height:50px; margin:0 ">
                     {{ listing.description }}
                 </div>
-                <div style="width:800px; height:80px; margin-top:20px;">
-                    <p class="font-weight-bold">Current Price: ${{ listing.bid }} </p> 
-                </div>
-                <small class="mt-0"><span class="badge badge-pill badge-light">{{ total_bids }} bids so far.</span></small>
-                <!-- Condition << if user is current winner -->
-                {% if current_winner %}
-                    <small class="mt-0"><span class="badge badge-pill badge-success">Your bid is the highest bid :)</span></small>
+
+                {% if listing.active %}
+                    <div style="width:800px; height:80px; margin-top:20px;">
+                        <p class="font-weight-bold">Current Price: ${{ listing.bid }} </p> 
+                    </div>
+                {% else %}
+                    <div style="width:800px; height:80px; margin-top:20px;">
+                        <p class="font-weight-bold">Maximum bid: ${{ max_bid_value }} </p> 
+                    </div>
+                {% endif %}
+                    
+                <p class="text-muted">
+                    <small>Created by {{listing.user}} {{ listing.created_at }}</small>
+                </p>
+                {% if listing.active %}
+                    <small class="mt-0"><span class="badge badge-pill badge-light">{{ total_bids }} bids so far.</span></small>
                 {% endif %}
 
+                <!-- Condition << if user is current winner -->
+                <!-- {% if current_winner %}
+                    <small class="mt-0"><span class="badge badge-pill badge-success">Your bid is the highest bid :)</span></small>
+                {% endif %} -->
+           
+
+                <!-- Place bid -->
                 <hr>
-                <div style="width:800px; height:50px;">
-                    <form action="{% url 'place_bid' listing.id %}" method="post">
-                        {% csrf_token %}
-                        <input type="number" name="bid">
-                        <input type="submit" value="Place Bid" class="btn btn-secondary">
-                    </form>
-                </div> 
+                {% if user.is_authenticated %}
+                    <div style="width:800px; height:50px;">
+                        <form action="{% url 'place_bid' listing.id %}" method="post">
+                            {% csrf_token %}
+                            <input type="number" name="bid">
+                            <input type="submit" value="Place Bid" class="btn btn-primary">
+                        </form>
+                    </div>
+                    {% if created_by_user and listing.active %}
+                        <div style="width:800px; height:50px;">
+                            <form action="{% url 'closeListing' listing.id %}" method="post">
+                                {% csrf_token %}
+                                <input type="submit" value="Close Auction" class="btn btn-danger">
+                            </form>
+                        </div>
+                        {% endif %}
+                {% endif %}
 
             </div>
         </div>
       </div>
       
-<!-- Comment section -->
 
-      {% if user.is_authenticated %}
+
+<!-- Comment section -->
+      
         <div class="container">
             <h5>Comments <span class="badge badge-secondary">{{ total_comments }}</span></h5>
+            {% if user.is_authenticated %}
             <div id="grid">
                     <form action="{% url 'comment' listing.id %}" method="post">
                         {% csrf_token %}
@@ -88,6 +125,13 @@
                     <input type="submit" value="Add Comment" class="btn btn-primary">
                     </form>
             </div>
+            {% else %} 
+            <p class="text-danger pt-1">
+               <small>Please <strong><a href="{% url 'login' %}" class="text-danger">sign in</a></strong> to add comment.</small>
+           </p>
+       </div>
+            {% endif %}
+
         </div> 
         <div class="container">
             {% for comment in listing.comments.all %}
@@ -105,6 +149,5 @@
             {% endfor %}
         </div>
 
-      {% endif %}
 
 {% endblock %}

@@ -9,6 +9,7 @@ from django import forms
 from django.contrib import messages
 from django.db.utils import OperationalError
 from django.db.models import Max
+from django.contrib.auth.models import AnonymousUser
 
 
 
@@ -124,20 +125,43 @@ def new_listing(request):
 
 
 
-@login_required()
+
 def listing(request, listing_id):
     listing = Listing.objects.get(pk=listing_id)
     comments = listing.comments.all()
     total_comments = comments.count()
 
-    bids = listing.listings.all()
-    total_bids = bids.count()
+    #get the user who created the listing
+    user = listing.user
+    #get the logged in user
+    logged_in_user = request.user
 
-    user = request.user
+    if user == logged_in_user:
+        created_by_user = True
+    else:
+        created_by_user = False
+
+    # in_watchlist = False
+    # user = request.user
+    # if isinstance(user,User):
+    #     if listing in user.watchlist.all():
+    #         in_watchlist = True 
+    
+        user = request.user
     if listing in user.watchlist.all():
          in_watchlist = True
     else:
-        in_watchlist = False
+        in_watchlist = False           
+
+    bids = listing.listings.all()
+    total_bids = bids.count()
+
+
+    all_other_bids = listing.listings.all()
+    max_bid = all_other_bids.aggregate(Max('amount'))
+    max_bid_value = max_bid['amount__max']
+    if max_bid_value and user == logged_in_user:
+        current_winner = True
 
     return render(request, "auctions/listing.html",{
         "listing": listing,
@@ -145,7 +169,9 @@ def listing(request, listing_id):
         "in_watchlist": in_watchlist,
         "total_comments":  total_comments,
         "total_bids": total_bids,
-        "current_winner": current_winner
+        "created_by_user": created_by_user,
+        "current_winner": current_winner,
+        "max_bid_value": max_bid_value
     })
 
 
@@ -154,11 +180,9 @@ def place_bid(request, listing_id):
     if request.method=="POST":
         listing = Listing.objects.get(pk=listing_id)
         current_bid = int(listing.bid)
-        new_bid = int(request.POST["bid"])
+        # new_bid = int(request.POST["bid"])
+        new_bid = int(request.POST.get('bid', False))
 
-        all_other_bids = listing.listings.all()
-        max_bid = all_other_bids.aggregate(Max('amount'))
-        max_bid_value = max_bid['amount__max']
 
         if new_bid > current_bid:
             #create the new_bid and save it:
@@ -167,10 +191,12 @@ def place_bid(request, listing_id):
             #update listing class << bid field:
             # MyModel.objects.filter(pk=some_value).update(field1='some value')
             Listing.objects.filter(pk=listing_id).update(bid=new_bid)
-            if new_bid > max_bid_value:
-                current_winner = True
-            else:
-                current_winner = False
+
+            all_other_bids = listing.listings.all()
+            max_bid = all_other_bids.aggregate(Max('amount'))
+            max_bid_value = max_bid['amount__max']
+  
+    
 
             messages.success(request, 'Bid successfully added.')
             return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
@@ -254,4 +280,21 @@ def comment(request, listing_id):
 
 @login_required()
 def closeListing(request, listing_id):
-    pass
+    if request.method == 'POST':
+        listing = Listing.objects.get(pk=listing_id)
+        #get the user who created the listing
+        user = listing.user
+        #get the logged in user
+        logged_in_user = request.user
+
+        if user == logged_in_user:
+            created_by_user = True
+        else:
+            created_by_user = False
+
+        Listing.objects.filter(pk=listing_id).update(active=False)    
+        messages.success(request, 'Auction successfully closed.')
+        return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
+
+    else:
+        return render(request, "auctions/listing.html")

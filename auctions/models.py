@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-# from auctions.views import category
 # from pyexpat import model
+
 
 class User(AbstractUser):
     pass
@@ -19,6 +19,9 @@ class Listing(models.Model):
     image = models.URLField(max_length=1000, blank=True, null=True)
     category = models.ForeignKey(Categories, on_delete=models.CASCADE, blank=True, null=True)
     watchlist = models.ManyToManyField(User, blank=True, related_name="watchlist")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings")
+    created_at = models.DateTimeField(auto_now_add=True)
+    active = models.BooleanField(default=True)
 
 
     def __str__(self):

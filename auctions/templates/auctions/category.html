@@ -1,68 +1,37 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-
-<ul class="nav justify-content-center">
-    <li class="nav-item">
-      <a class="nav-link" href="#">Listings of  {{ category.type }}</a>
-    </li>
-  </ul>
+<nav class="navbar navbar-light bg-light justify-content-center">
+  <a class="navbar-brand ">Active Listings</a>
+</nav>
 
 
 
-{% for listing in listings %}
-
-<div class="container">
-    <div id="grid">
-        <div class="grid_item">
-            <a href="default.asp"><img src="{{ listing.image }}" alt="Photo of {{ listing.title }}" style="width:300px;height:300px;"></a>
+    <div class="container">
+      <div class="row">
+        {% for listing in listings %}
+          {% if listing.active %}
+        <div class="col-4">
+        <a href="{% url 'listing' listing.id %}" class="custom-card">
+            <div class="card">
+              <img class="card-img-top" src="{% if listing.image %}{{ listing.image }}{% else %}http://www.aaru.edu.jo/websites/aaru2/wp-content/plugins/learnpress/assets/images/no-image.png?Mobile=1&Source=%2F%5Flayouts%2Fmobile%2Fdispform%2Easpx%3FList%3D78b536db%252De7c7%252D45d9%252Da661%252Ddb2a2aa2fbaf%26View%3D6efc759a%252D0646%252D433c%252Dab6e%252D2f027ffe0799%26RootFolder%3D%252Fwebsites%252Faaru2%252Fwp%252Dcontent%252Fplugins%252Flearnpress%252Fassets%252Fimages%26ID%3D4786%26CurrentPage%3D1{% endif %}" alt="Photo of {{ listing.title }}">
+              <div class="card-body">
+                <h5 class="card-title">{{ listing.title }}</h5>
+                <p class="card-text">{{ listing.description }}</p>
+              </div>
+              <div class="card-footer">
+                <small class="text-muted">${{ listing.bid }}</small>
+              </div>
+            </div>
+          </a>
         </div>
-        <div class="grid_item">
-            <div style="width:800px; height:50px; margin:0"  class="font-weight-bold">
-                {{ listing.title }}
-            </div>
+        {% endif %}
+        {% empty %}
+        <p>No Active Listings found in this category.</p>
+        {% endfor %}
+      </div>
 
-            {% if in_watchlist %}
-                <form action="{% url 'watchlist_remove' listing.id %}" method="post">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <input type="hidden" name="user" value="{{user.id}}">
-                    </div>
-                    <input class="btn btn-primary" type="submit" value="Remove from Watchlist">
-                </form>
-            {% else %}
-                <form action="{% url 'watchlist_add' listing.id %}" method="post">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <input type="hidden" name="user" value="{{user.id}}">
-                    </div>
-                    <input class="btn btn-primary" type="submit" value="Add To Watchlist">
-                </form>
-            {% endif %}
-
-
-
-            <div style="width:800px; height:50px; margin:0 ">
-                {{ listing.description }}
-            </div>
-            <div style="width:800px; height:150px; margin-top:20px;">
-                <p class="font-weight-bold">Current Price: ${{ listing.bid }} </p> 
-            </div>
-            <hr>
-            <div style="width:800px; height:50px;">
-                <form action="{% url 'place_bid' listing.id %}" method="post">
-                    {% csrf_token %}
-                    <input type="number" name="bid">
-                    <input type="submit" value="Place Bid" class="btn btn-secondary">
-                </form>
-            </div> 
-
-        </div>
     </div>
-  </div>
-{% empty %}
-<p>No Listings in this category</p>
-{% endfor %}
 
 
 {% endblock %}
