@@ -1,3 +1,4 @@
+from distutils.command.bdist_dumb import bdist_dumb
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
@@ -110,21 +111,17 @@ def new_listing(request):
             bid = form.cleaned_data["bid"]
             category = form.cleaned_data["category"]
             category_obj = Categories.objects.get(type=category)
-            listing = Listing.create(title=title, description=description, bid=bid, image=image, category=category_obj)
+            listing = Listing.create(title=title, description=description, bid=bid, image=image, category=category_obj, user=request.user)
             listing.save()
             bid_object = Bid.create(request.user,bid,listing)
             bid_object.save() 
             return HttpResponseRedirect(reverse("index"))
-            
-
+    
     else:
         return render(request, "auctions/newlisting.html",{
             "form": NewListingForm(),
             "categories": Categories.objects.all()
         })
-
-
-
 
 def listing(request, listing_id):
     listing = Listing.objects.get(pk=listing_id)
@@ -141,27 +138,29 @@ def listing(request, listing_id):
     else:
         created_by_user = False
 
-    # in_watchlist = False
-    # user = request.user
-    # if isinstance(user,User):
-    #     if listing in user.watchlist.all():
-    #         in_watchlist = True 
-    
-        user = request.user
-    if listing in user.watchlist.all():
-         in_watchlist = True
-    else:
-        in_watchlist = False           
-
+    #total number of bids on this listing
     bids = listing.listings.all()
     total_bids = bids.count()
 
+    # Only check watchlist and max bid for authenticated users
+    if isinstance(user,User):
+    
+        user = request.user
+        if listing in user.watchlist.all():
+            in_watchlist = True
+        else:
+            in_watchlist = False
 
-    all_other_bids = listing.listings.all()
-    max_bid = all_other_bids.aggregate(Max('amount'))
-    max_bid_value = max_bid['amount__max']
-    if max_bid_value and user == logged_in_user:
-        current_winner = True
+        current_winner = False
+        #All bids on the current listing from all users
+        bids = Bid.objects.filter(listing=listing)
+        #the highest bid on this listing (DESC order)
+        highest_bid = Bid.objects.filter(listing=listing).order_by('-amount').first() or 0
+        #the user of this highest bid
+        user = highest_bid.user
+        #if the user who has the highest bid is the user who is currently logged in << current_winner = True
+        if user == request.user:
+            current_winner = True
 
     return render(request, "auctions/listing.html",{
         "listing": listing,
@@ -171,9 +170,7 @@ def listing(request, listing_id):
         "total_bids": total_bids,
         "created_by_user": created_by_user,
         "current_winner": current_winner,
-        "max_bid_value": max_bid_value
     })
-
 
 @login_required()
 def place_bid(request, listing_id):
@@ -183,7 +180,6 @@ def place_bid(request, listing_id):
         # new_bid = int(request.POST["bid"])
         new_bid = int(request.POST.get('bid', False))
 
-
         if new_bid > current_bid:
             #create the new_bid and save it:
             new_bid_obj = Bid.create(request.user,new_bid,listing)     
@@ -191,12 +187,6 @@ def place_bid(request, listing_id):
             #update listing class << bid field:
             # MyModel.objects.filter(pk=some_value).update(field1='some value')
             Listing.objects.filter(pk=listing_id).update(bid=new_bid)
-
-            all_other_bids = listing.listings.all()
-            max_bid = all_other_bids.aggregate(Max('amount'))
-            max_bid_value = max_bid['amount__max']
-  
-    
 
             messages.success(request, 'Bid successfully added.')
             return HttpResponseRedirect(reverse("listing", args=(listing_id,)))

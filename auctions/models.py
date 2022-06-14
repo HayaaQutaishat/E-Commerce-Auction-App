@@ -29,8 +29,8 @@ class Listing(models.Model):
     
 
     @classmethod
-    def create(cls, title, description, bid, image, category):
-        listing = cls(title=title, description=description, bid=bid, image=image, category=category)
+    def create(cls, title, description, bid, image, category, user):
+        listing = cls(title=title, description=description, bid=bid, image=image, category=category, user=user)
         return listing
 
 class Bid(models.Model):
