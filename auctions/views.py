@@ -147,14 +147,13 @@ def listing(request, listing_id):
     # Only check watchlist and max bid for authenticated users
     if request.user.is_authenticated:
         user = request.user
-        print(user)
         if listing in user.watchlist.all():
             in_watchlist = True            
 
         #All bids on the current listing from all users
         bids = Bid.objects.filter(listing=listing)
         #the highest bid on this listing (DESC order)
-        highest_bid = Bid.objects.filter(listing=listing).order_by('-amount').first() or 0
+        highest_bid = Bid.objects.filter(listing=listing).order_by('-amount').first() or 0 
         #the user of this highest bid
         user = highest_bid.user
         #if the user who has the highest bid is the user who is currently logged in << current_winner = True

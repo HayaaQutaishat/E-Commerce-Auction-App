@@ -37,8 +37,6 @@
                 <div style="width:800px; height:50px; margin:0"  class="font-weight-bold">
                     {{ listing.title }}
                 </div>
-
-      
                 <!-- watchlist -->
                 {% if user.is_authenticated %}
                     {% if in_watchlist %}
@@ -59,21 +57,21 @@
                     </form>
                 {% endif %}
             {% endif %}
-
                 <div style="width:800px; height:50px; margin:0 ">
                     {{ listing.description }}
                 </div>
-
                 {% if listing.active %}
                     <div style="width:800px; height:80px; margin-top:20px;">
                         <p class="font-weight-bold">Current Price: ${{ listing.bid }} </p> 
                     </div>
                 {% else %}
                     <div style="width:800px; height:80px; margin-top:20px;">
-                        <p class="font-weight-bold">Maximum bid: ${{ max_bid_value }} </p> 
+                        <p class="font-weight-bold">Winning bid: ${{ listing.bid }}</p> 
                     </div>
+                    {% if current_winner %}
+                    <span class="badge badge-success">Congratulations! You won this auction.</span>          
+                    {% endif %}
                 {% endif %}
-                    
                 <p class="text-muted">
                     <small>Created by {{listing.user}} {{ listing.created_at }}</small>
                 </p>
@@ -82,16 +80,15 @@
                  {% endif %}
 
                 <!-- Condition << if user is current winner -->
-                {% if user.is_authenticated %}
+                {% if user.is_authenticated and listing.active %}
                     {% if current_winner %}
                         <small class="mt-0"><span class="badge badge-success">Your bid is the highest bid :)</span></small>
                     {% endif %}
                 {% endif %}
            
-
                 <!-- Place bid -->
                 <hr>
-                {% if user.is_authenticated %}
+                {% if user.is_authenticated and listing.active %}
                     <div style="width:800px; height:50px;">
                         <form action="{% url 'place_bid' listing.id %}" method="post">
                             {% csrf_token %}
@@ -109,11 +106,13 @@
                         </div>
                         {% endif %}
                 {% endif %}
+                {% if not listing.active %}
+                    <span class="badge badge-dark">This Auction has Finished.</span>
+                {% endif %}
             </div>
         </div>
       </div>
       
-
 <!-- Comment section -->
         <div class="container">
             <h5>Comments <span class="badge badge-secondary">{{ total_comments }}</span></h5>
@@ -127,9 +126,9 @@
                     </form>
             </div>
             {% else %} 
-            <p class="text-danger pt-1">
-               <small>Please <strong><a href="{% url 'login' %}" class="text-danger">sign in</a></strong> to add comment.</small>
-           </p>
+                <h3 class="text-danger pt-1">
+                <small>Please <strong><a href="{% url 'login' %}" class="text-danger">sign in</a></strong> to add comment.</small>
+                </h3>
        </div>
             {% endif %}
 
