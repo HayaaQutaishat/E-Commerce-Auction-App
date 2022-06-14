@@ -1,4 +1,4 @@
-# https---github.com-HayaaQutaishat-CS50W-Project2-Commerce-master-master# CS50W-Project2-Commerce
+# CS50W-Project2-Commerce
 
 ## CS50 Web - Programming with Python and JavaScript. 
 
