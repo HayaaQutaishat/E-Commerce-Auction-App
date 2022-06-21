@@ -31,4 +31,4 @@ Users who are signed in should be able to add comments to the listing page. The 
 
 ## YouTube Video:
 
-Youtube link: A short video that shows every element of the specification: ""
+Youtube link: A short video that shows every element of the specification: "https://www.youtube.com/watch?v=ySKPfys8cL0&t=19s"
