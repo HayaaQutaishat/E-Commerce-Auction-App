@@ -1,10 +1,10 @@
-# CS50W-Project2-Commerce
+# E-commerce Auction Application
 
-## CS50 Web - Programming with Python and JavaScript. 
+
 
 ### Project purpose :
 
-An  e-commerce auction site that will allow users to post auction listings, place bids on listings, comment on those listings, and add listings to a “watchlist.” This was Project 2 of HarvardX's CS50W course in 2022 and was built using Python, Django, CSS, HTML and Bootstrap.
+An e-commerce auction site that will allow users to post auction listings, place bids on listings, comment on those listings, and add listings to a “watchlist.” This was Project 2 of HarvardX's CS50W course in 2022 and was built using Python, Django, CSS, HTML and Bootstrap.
 
 
 ### Project Requirements :
